@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
 
-# Backup The Foreman, following the advice at 
+# Backup The Foreman, following the advice at
 # http://theforeman.org/manuals/1.7/index.html#5.5.1Backup
 
 # Currently a very simple script.
@@ -25,23 +24,24 @@ main () {
   mkdir $BACKUPDIR
   chgrp postgres $BACKUPDIR
   chmod g+w $BACKUPDIR
-  
+
   cd $BACKUPDIR
-  
+
   # Backup postgres database
   su - postgres -c "pg_dump -Fc foreman > $BACKUPDIR/foreman.dump"
-  
+
   # Backup config ifles
   tar -czvf $BACKUPDIR/etc_puppet_dir.tgz /etc/puppet
   tar -czvf $BACKUPDIR/etc_foreman_dir.tgz /etc/foreman
   tar -czvf $BACKUPDIR/var_lib_puppet_dir.tgz /var/lib/puppet/ssl
   tar -czvf $BACKUPDIR/tftpboot-dhcp.tgz /var/lib/tftpboot /etc/dhcp/ /var/lib/dhcpd/
-  ls -lh *tar.gz foreman.dump
+  ls -lh *.tgz foreman.dump
 
-  #Delete old backup directories 
+  #Delete old backup directories
   echo "Searching for directories older than $DAYS_TO_RETAIN to remove..."
   find $BACKUPBASE -type d -mtime +$DAYS_TO_RETAIN -exec rm -rf {} \;
- 
+
 }
 
+#Run the backup and log to syslog...
 main 2>&1 | /usr/bin/logger -t $ME
