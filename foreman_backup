@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+# Backup The Foreman, following the advice at 
+# http://theforeman.org/manuals/1.7/index.html#5.5.1Backup
+
+# Currently a very simple script.
+# Author: stefanl@nersc.gov
+# Last Modified by: Robert Lupinek 7/28/2015
+# Temporary: Be verbose
+#set -x
+
+# If any command fails, stop this script.
+set -e
+
+ME=`basename $0`
+
+main () {
+  DATE=$(date '+%Y%m%d.%H%M')
+  BACKUPBASE=/var/lib/foreman/backups/
+  BACKUPDIR=$BACKUPBASE/backup-$DATE
+  #Set the number days to retain backups.
+  #Keep in mind that each OS will require it's initrd and kernel to be backed up
+  #from the /var/lib/tftpboot dir.
+  DAYS_TO_RETAIN=30
+  mkdir $BACKUPDIR
+  chgrp postgres $BACKUPDIR
+  chmod g+w $BACKUPDIR
+  
+  cd $BACKUPDIR
+  
+  # Backup postgres database
+  su - postgres -c "pg_dump -Fc foreman > $BACKUPDIR/foreman.dump"
+  
+  # Backup config ifles
+  tar -czvf $BACKUPDIR/etc_puppet_dir.tgz /etc/puppet
+  tar -czvf $BACKUPDIR/etc_foreman_dir.tgz /etc/foreman
+  tar -czvf $BACKUPDIR/var_lib_puppet_dir.tgz /var/lib/puppet/ssl
+  tar -czvf $BACKUPDIR/tftpboot-dhcp.tgz /var/lib/tftpboot /etc/dhcp/ /var/lib/dhcpd/
+  ls -lh *tar.gz foreman.dump
+
+  #Delete old backup directories 
+  echo "Searching for directories older than $DAYS_TO_RETAIN to remove..."
+  find $BACKUPBASE -type d -mtime +$DAYS_TO_RETAIN -exec rm -rf {} \;
+ 
+}
+
+main 2>&1 | /usr/bin/logger -t $ME
