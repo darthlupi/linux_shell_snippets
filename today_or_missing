@@ -1,0 +1,14 @@
+function today_or_missing() {
+  #File string to search for
+  test_file=$1
+  #Alternate for files from today is: find -maxdepth 1 -type f -daystart -mtime -1
+  if  ls -al $1 --time-style=+%D | grep $(date +%D)
+  then
+    echo "  $1 found with today's date."
+  else
+    echo "$1 is missing or older than todays date!"
+        source /usr/local/bin/do_thing"
+  fi
+}
+
+today_or_missing
