@@ -1,4 +1,4 @@
-#there_can_be_only_one.sh
+#force_once_process.sh
 #Decription:
 #  This script demos the functionality of the force_only_one function
 #  which creates a pid file when run and removes it on exit.
