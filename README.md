@@ -1,2 +1,2 @@
-# linux_shell_snippets
-Repository for cool linux scripts that I will use everywhere and anywhere.
+# linux-examples
+Repository to collect my python examples and snippets.
